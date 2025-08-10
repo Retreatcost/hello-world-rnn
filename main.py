@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from safetensors.torch import save_file
 from torch.utils.tensorboard import SummaryWriter
+from torchview import draw_graph
 
 # Hyperparameters
 SEQ_LENGTH = 3
@@ -45,6 +46,24 @@ class CharRNN(nn.Module):
 
 
 model = CharRNN(len(chars), HIDDEN_SIZE)
+
+dummy_input = torch.randint(0, len(chars), (1, SEQ_LENGTH))  # [batch_size=1, seq_length]
+
+device = next(model.parameters()).device
+
+# Generate visualization
+model_graph = draw_graph(
+    model,
+    input_data=dummy_input,  # Use dummy input instead of input_size
+    graph_name='char_rnn',
+    save_graph=True,
+    device=device,
+    directory='./',  # Save in current directory
+    filename='model_structure',
+    expand_nested=True,
+    hide_inner_tensors=False,
+    hide_module_functions=False
+)
 
 # 4. Training Setup
 criterion = nn.CrossEntropyLoss()
